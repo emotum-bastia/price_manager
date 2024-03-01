@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import SessionBox from '../components/SessionBox';
+import orderBySiteList from '../functions/orderBySiteList';
 
 const FileViewer = () => {
   const [fileContent, setFileContent] = useState('');
@@ -15,7 +16,6 @@ const FileViewer = () => {
         buffer.shift();
         var final = [];
         buffer.forEach(element => {
-            console.log("element:" + element);
             var splited = element.split(',');
             var computePrice = Number(splited[16]).toFixed(2) * 0.55;
             var difference = Number(splited[19]).toFixed(2) - computePrice;
@@ -29,7 +29,7 @@ const FileViewer = () => {
                 difference: difference
             });
         });
-        setFileContent(JSON.stringify(final));
+        setFileContent(final);
         var sessionBufferDiv = [];
 
         final.forEach(
@@ -55,13 +55,29 @@ const FileViewer = () => {
     setSelectedFile(file);
   };
 
+  const orderBySite = () => {
+    var bufferNewList = orderBySiteList(fileContent);
+    var sessionBufferDiv = [];
+
+    bufferNewList.forEach(
+      element =>
+      sessionBufferDiv.push(<SessionBox
+        site={element.site}
+        date={element.date}
+        consommation={element.consommation}
+        price={element.price}
+        computePrice={element.computePrice.toFixed(2)}
+        difference={element.difference.toFixed(2)} 
+      />));
+    setSessionDiv(sessionBufferDiv);
+  };
   return (
     <div>
       <input type="file" onChange={handleFileChange} />
 
       <table className="header_table" style={styles.header_table}>
         <tr>
-          <td width="40%">site</td>
+          <td width="40%" className="btn" style={styles.btn} onClick={orderBySite}>site</td>
           <td width="16%">date</td>
           <td width="12%">consommation en kWh</td>
           <td width="10%">prix en €</td>
