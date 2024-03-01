@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import SessionBox from '../components/SessionBox';
 import orderBySiteList from '../functions/orderBySiteList';
+import orderByConsommationList from '../functions/orderByConsommationList';
 
 const FileViewer = () => {
   const [fileContent, setFileContent] = useState('');
@@ -71,6 +72,26 @@ const FileViewer = () => {
       />));
     setSessionDiv(sessionBufferDiv);
   };
+
+  const orderByConsommation = () => {
+    console.log("CONSOMMATION");
+    var bufferNewList = orderByConsommationList(fileContent);
+    var sessionBufferDiv = [];
+
+    bufferNewList.forEach(
+      element =>
+      sessionBufferDiv.push(<SessionBox
+        site={element.site}
+        date={element.date}
+        consommation={element.consommation}
+        price={element.price}
+        computePrice={element.computePrice.toFixed(2)}
+        difference={element.difference.toFixed(2)} 
+      />));
+    setSessionDiv(sessionBufferDiv);
+    console.log("END");
+  };
+
   return (
     <div>
       <input type="file" onChange={handleFileChange} />
@@ -79,7 +100,7 @@ const FileViewer = () => {
         <tr>
           <td width="40%" className="btn" style={styles.btn} onClick={orderBySite}>site</td>
           <td width="16%">date</td>
-          <td width="12%">consommation en kWh</td>
+          <td width="12%" className="btn" style={styles.btn} onClick={orderByConsommation}>consommation en kWh</td>
           <td width="10%">prix en €</td>
           <td width="10%">prix théorique en €</td>
           <td width="10%">différence en €</td>

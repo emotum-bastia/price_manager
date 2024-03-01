@@ -8,7 +8,7 @@ function orderBySiteList(fileContent) {
         if (bufferSiteList.findIndex((cursor) => cursor == element.site) < 0)
             bufferSiteList.push(element.site);
     });
-    console.log(JSON.stringify(bufferSiteList));
+    bufferSiteList.sort();
     bufferSiteList.forEach(element => {
         fileContent.forEach(session => {
             if (session.site == element)
