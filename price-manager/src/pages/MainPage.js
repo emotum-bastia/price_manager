@@ -36,7 +36,10 @@ const FileViewer = () => {
         buffer.shift();
         var final = [];
         buffer.forEach(element => {
+            if (!element) return;
             var splited = element.split(',');
+            if (!splited[1] || !splited[12] || !splited[19] || !splited) return;
+
             var computePrice = Number(splited[16]).toFixed(2) * 0.55;
             var difference = Number(splited[19]).toFixed(2) - computePrice;
 
