@@ -33,7 +33,6 @@ const FileViewer = () => {
       function (element) {
         if (!element.difference || !element.computePrice) return;
         var place = listSite.find(function (cursor) { return cursor.name == element.site});
-        console.log("place 1->" + JSON.stringify(place));
         if (place) { 
           if (place.hide) return;
         }
@@ -49,67 +48,69 @@ const FileViewer = () => {
       
     setSessionDiv(sessionBufferDiv);
   }
-
+  
   
 
-  useEffect(() => {
 
-    async function  changeHideSite (range, listGot, fileContentGot) {
-      console.log("changement + range " + range);
-      var bufferSiteList = [];
-      for (var i = 0; i < listGot.length; i++) {
-      console.log("i: " + i);
-      bufferSiteList.push({
-          name: listGot[i].name,
-          hide: i != range ? listGot[i].hide : !listGot[i].hide
-        });
-      }
-      bufferSiteList.sort(function(first, second) {
-        return compareString(first.name, second.name);
+  async function  changeHideSite (range, listGot, fileContentGot) {
+    var bufferSiteList = [];
+    for (var i = 0; i < listGot.length; i++) {
+    bufferSiteList.push({
+        name: listGot[i].name,
+        hide: i != range ? listGot[i].hide : !listGot[i].hide
       });
-      console.log("buffer list ->\n\n" + JSON.stringify(bufferSiteList));
-      setListSite(bufferSiteList);
-  
-      var bufferListBtn = [];
-      var range = 0;
-      bufferSiteList.forEach(function () {
-        var i = range;
-        bufferListBtn.push(
-          <div class="check_list" style={styles.check_list}>
-            <input
-              type="checkbox"
-              id={bufferSiteList[range].name}
-              names={bufferSiteList[range].name}
-              checked={!bufferSiteList[range].hide}
-              onClick={() => changeHideSite(i, bufferSiteList, fileContentGot)}
-            />
-            <label for={bufferSiteList[range].name}>{bufferSiteList[range].name}</label>
-          </div>);
-          range++;
-      });
-      setListSiteBtn(bufferListBtn);
-  
-      var sessionBufferDiv = [];
-      var bufferNewList = fileContentGot;
-      fileContentGot.forEach(
-        function (element) {
-          if (!element.difference || !element.computePrice) return;
-          var place = bufferSiteList.find(function (cursor) { return cursor.name == element.site});
-          console.log("place->" + JSON.stringify(place));
-          if (!place) return;
-          if (place.hide) return;
-          sessionBufferDiv.push(<SessionBox
-            site={element.site}
-            date={element.date}
-            consommation={element.consommation}
-            price={element.price}
-            computePrice={element.computePrice.toFixed(2)}
-            difference={element.difference.toFixed(2)} 
-          />)
-      });
-        
-      setSessionDiv(sessionBufferDiv);
     }
+    bufferSiteList.sort(function(first, second) {
+      return compareString(first.name, second.name);
+    });
+    setListSite(bufferSiteList);
+
+    var bufferListBtn = [];
+    var range = 0;
+    bufferSiteList.forEach(function () {
+      var i = range;
+      bufferListBtn.push(
+        <div class="check_list" style={styles.check_list}>
+          <input
+            type="checkbox"
+            id={bufferSiteList[range].name}
+            names={bufferSiteList[range].name}
+            checked={!bufferSiteList[range].hide}
+            onClick={() => changeHideSite(i, bufferSiteList, fileContentGot)}
+          />
+          <label for={bufferSiteList[range].name}>{bufferSiteList[range].name}</label>
+        </div>);
+        range++;
+    });
+    setListSiteBtn(bufferListBtn);
+
+    var sessionBufferDiv = [];
+    var bufferNewList = fileContentGot;
+    fileContentGot.forEach(
+      function (element) {
+        if (!element.difference || !element.computePrice) return;
+        var place = bufferSiteList.find(function (cursor) { return cursor.name == element.site});
+        if (!place) return;
+        if (place.hide) return;
+        sessionBufferDiv.push(<SessionBox
+          site={element.site}
+          date={element.date}
+          consommation={element.consommation}
+          price={element.price}
+          computePrice={element.computePrice.toFixed(2)}
+          difference={element.difference.toFixed(2)} 
+        />)
+    });
+      
+    setSessionDiv(sessionBufferDiv);
+  }
+
+
+
+
+  
+  useEffect(() => {
+        
 
 
     if (selectedFile) {
@@ -164,7 +165,6 @@ const FileViewer = () => {
               <label for={bufferSiteList[range].name}>{bufferSiteList[range].name}</label>
             </div>);
             range++;
-            console.log(range);
         });
         setListSiteBtn(bufferListBtn);
         setListDiv(final);
@@ -234,6 +234,63 @@ const FileViewer = () => {
     setListDiv(bufferNewList);
   }
 
+  function changeAll(enable) {
+    var listGot = listSite;
+    var fileContentGot = fileContent;
+
+    var bufferSiteList = [];
+    for (var i = 0; i < listGot.length; i++) {
+    bufferSiteList.push({
+        name: listGot[i].name,
+        hide: enable
+      });
+    }
+    bufferSiteList.sort(function(first, second) {
+      return compareString(first.name, second.name);
+    });
+    setListSite(bufferSiteList);
+
+    var bufferListBtn = [];
+    var range = 0;
+    bufferSiteList.forEach(function () {
+      var i = range;
+      bufferListBtn.push(
+        <div class="check_list" style={styles.check_list}>
+          <input
+            type="checkbox"
+            id={bufferSiteList[range].name}
+            names={bufferSiteList[range].name}
+            checked={!bufferSiteList[range].hide}
+            onClick={() => changeHideSite(i, bufferSiteList, fileContentGot)}
+          />
+          <label for={bufferSiteList[range].name}>{bufferSiteList[range].name}</label>
+        </div>);
+        range++;
+    });
+    setListSiteBtn(bufferListBtn);
+
+    var sessionBufferDiv = [];
+    var bufferNewList = fileContentGot;
+    fileContentGot.forEach(
+      function (element) {
+        if (!element.difference || !element.computePrice) return;
+        var place = bufferSiteList.find(function (cursor) { return cursor.name == element.site});
+        if (!place) return;
+        if (place.hide) return;
+        sessionBufferDiv.push(<SessionBox
+          site={element.site}
+          date={element.date}
+          consommation={element.consommation}
+          price={element.price}
+          computePrice={element.computePrice.toFixed(2)}
+          difference={element.difference.toFixed(2)} 
+        />)
+    });
+      
+    setSessionDiv(sessionBufferDiv);
+  }
+
+  
   return (
     <div>
       <img src={logo} alt='logo_e_emotum' className={'App-logo ' + (rotation ? 'App-logo-rotation' : '')} style={{
@@ -249,6 +306,8 @@ const FileViewer = () => {
             <button className="btn" style={styles.btn} onClick={orderBySiteRevert}>˅</button>
             <Popup trigger={<button> choisir site</button>} arrow={false} position="bottom">
               <div className='popup' style={styles.popup}>
+                <button class="btn" onClick={() => changeAll(false)}>toute activer</button>
+                <button class="btn" onClick={() => changeAll(true)}>toute désactiver</button>
                 {listSiteBtn}
               </div>
             </Popup>
