@@ -54,7 +54,7 @@ const FileViewer = () => {
 
   useEffect(() => {
 
-    async function  changeHideSite (range, listGot) {
+    async function  changeHideSite (range, listGot, fileContentGot) {
       console.log("changement + range " + range);
       var bufferSiteList = [];
       for (var i = 0; i < listGot.length; i++) {
@@ -81,7 +81,7 @@ const FileViewer = () => {
               id={bufferSiteList[range].name}
               names={bufferSiteList[range].name}
               checked={!bufferSiteList[range].hide}
-              onClick={() => changeHideSite(i, bufferSiteList)}
+              onClick={() => changeHideSite(i, bufferSiteList, fileContentGot)}
             />
             <label for={bufferSiteList[range].name}>{bufferSiteList[range].name}</label>
           </div>);
@@ -90,8 +90,8 @@ const FileViewer = () => {
       setListSiteBtn(bufferListBtn);
   
       var sessionBufferDiv = [];
-      var bufferNewList = fileContent;
-      fileContent.forEach(
+      var bufferNewList = fileContentGot;
+      fileContentGot.forEach(
         function (element) {
           if (!element.difference || !element.computePrice) return;
           var place = bufferSiteList.find(function (cursor) { return cursor.name == element.site});
@@ -159,7 +159,7 @@ const FileViewer = () => {
                 id={bufferSiteList[range].name}
                 names={bufferSiteList[range].name}
                 checked={!bufferSiteList[range].hide}
-                onClick={() => changeHideSite(i, bufferSiteList)}
+                onClick={() => changeHideSite(i, bufferSiteList, final)}
               />
               <label for={bufferSiteList[range].name}>{bufferSiteList[range].name}</label>
             </div>);
