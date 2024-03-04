@@ -1,22 +1,15 @@
 import React from "react";
 
-function orderBySiteList(fileContent) {
-    var bufferSiteList = [];
-    var bufferListOrdered  = [];
-
-    fileContent.forEach(element => {
-        if (bufferSiteList.findIndex((cursor) => cursor == element.site) < 0)
-            bufferSiteList.push(element.site);
-    });
-    bufferSiteList.sort();
-    bufferSiteList.forEach(element => {
+function orderBySiteList(fileContent, bufferListSite) {
+    var bufferSessionList = [];
+    bufferListSite.forEach( function (element) {
         fileContent.forEach(session => {
-            if (session.site == element)
-                bufferListOrdered.push(session);
+            if (session.site == element.name) {
+                bufferSessionList.push(session);
+            }
         });
     });
-    console.log(JSON.stringify(bufferListOrdered))
-    return bufferListOrdered;
+    return bufferSessionList;
 }
 
 export default orderBySiteList;

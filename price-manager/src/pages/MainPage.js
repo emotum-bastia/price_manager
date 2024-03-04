@@ -5,30 +5,113 @@ import orderByConsommationList from '../functions/orderByConsommationList';
 import orderByPriceList from '../functions/orderByPrice';
 import orderByDifferenceList from '../functions/orderByDifferenceList';
 import orderByDateList from '../functions/orderByDateList';
+import logo from "./../assets/logo_e.png"
+import Popup from "reactjs-popup";
+
+function compareString(first, second)
+{
+  first = first.toLowerCase();
+  second = second.toLowerCase();
+
+  return (first < second) ? -1 : (first > second) ? 1 : 0;
+}
 
 const FileViewer = () => {
   const [fileContent, setFileContent] = useState('');
   const [selectedFile, setSelectedFile] = useState(null);
 
+  const [listSite,  setListSite] = useState([]);
+
   const [sessionDiv, setSessionDiv] = useState([]);
+  const [listSiteBtn, setListSiteBtn] = useState([]);
+  var rotation = false;
 
   const setListDiv = (bufferNewList) => {
     var sessionBufferDiv = [];
 
     bufferNewList.forEach(
-      element =>
-      sessionBufferDiv.push(<SessionBox
-        site={element.site}
-        date={element.date}
-        consommation={element.consommation}
-        price={element.price}
-        computePrice={element.computePrice.toFixed(2)}
-        difference={element.difference.toFixed(2)} 
-      />));
+      function (element) {
+        if (!element.difference || !element.computePrice) return;
+        var place = listSite.find(function (cursor) { return cursor.name == element.site});
+        console.log("place 1->" + JSON.stringify(place));
+        if (place) { 
+          if (place.hide) return;
+        }
+        sessionBufferDiv.push(<SessionBox
+          site={element.site}
+          date={element.date}
+          consommation={element.consommation}
+          price={element.price}
+          computePrice={element.computePrice.toFixed(2)}
+          difference={element.difference.toFixed(2)} 
+        />)
+    });
+      
     setSessionDiv(sessionBufferDiv);
   }
 
+  
+
   useEffect(() => {
+
+    async function  changeHideSite (range, listGot) {
+      console.log("changement + range " + range);
+      var bufferSiteList = [];
+      for (var i = 0; i < listGot.length; i++) {
+      console.log("i: " + i);
+      bufferSiteList.push({
+          name: listGot[i].name,
+          hide: i != range ? listGot[i].hide : !listGot[i].hide
+        });
+      }
+      bufferSiteList.sort(function(first, second) {
+        return compareString(first.name, second.name);
+      });
+      console.log("buffer list ->\n\n" + JSON.stringify(bufferSiteList));
+      setListSite(bufferSiteList);
+  
+      var bufferListBtn = [];
+      var range = 0;
+      bufferSiteList.forEach(function () {
+        var i = range;
+        bufferListBtn.push(
+          <div class="check_list" style={styles.check_list}>
+            <input
+              type="checkbox"
+              id={bufferSiteList[range].name}
+              names={bufferSiteList[range].name}
+              checked={!bufferSiteList[range].hide}
+              onClick={() => changeHideSite(i, bufferSiteList)}
+            />
+            <label for={bufferSiteList[range].name}>{bufferSiteList[range].name}</label>
+          </div>);
+          range++;
+      });
+      setListSiteBtn(bufferListBtn);
+  
+      var sessionBufferDiv = [];
+      var bufferNewList = fileContent;
+      fileContent.forEach(
+        function (element) {
+          if (!element.difference || !element.computePrice) return;
+          var place = bufferSiteList.find(function (cursor) { return cursor.name == element.site});
+          console.log("place->" + JSON.stringify(place));
+          if (!place) return;
+          if (place.hide) return;
+          sessionBufferDiv.push(<SessionBox
+            site={element.site}
+            date={element.date}
+            consommation={element.consommation}
+            price={element.price}
+            computePrice={element.computePrice.toFixed(2)}
+            difference={element.difference.toFixed(2)} 
+          />)
+      });
+        
+      setSessionDiv(sessionBufferDiv);
+    }
+
+
     if (selectedFile) {
       const reader = new FileReader();
       reader.onload = (event) => {
@@ -55,12 +138,41 @@ const FileViewer = () => {
         });
         setFileContent(final);
         var sessionBufferDiv = [];
+        var bufferSiteList = [];
+        final.forEach(element => {
+          if (bufferSiteList.findIndex((cursor) => cursor.name == element.site) < 0)
+            bufferSiteList.push({name: element.site, hide: false});
+        });
+        bufferSiteList.sort(function(first, second) {
+          return compareString(first.name, second.name);
+        });
+        setListSite(bufferSiteList);
 
+        var bufferListBtn = [];
+        var range = 0;
+        bufferSiteList.forEach(function () {
+          var i = range;
+          bufferListBtn.push(
+            <div class="check_list" style={styles.check_list}>
+              <input
+                type="checkbox"
+                id={bufferSiteList[range].name}
+                names={bufferSiteList[range].name}
+                checked={!bufferSiteList[range].hide}
+                onClick={() => changeHideSite(i, bufferSiteList)}
+              />
+              <label for={bufferSiteList[range].name}>{bufferSiteList[range].name}</label>
+            </div>);
+            range++;
+            console.log(range);
+        });
+        setListSiteBtn(bufferListBtn);
         setListDiv(final);
       };
 
       reader.readAsText(selectedFile);
     }
+
   }, [selectedFile]);
 
   const handleFileChange = (event) => {
@@ -69,12 +181,12 @@ const FileViewer = () => {
   };
 
   const orderBySite = () => {
-    var bufferNewList = orderBySiteList(fileContent);
+    var bufferNewList = orderBySiteList(fileContent, listSite);
     setListDiv(bufferNewList);
   };
 
   const orderBySiteRevert = () => {
-    var bufferNewList = orderBySiteList(fileContent);
+    var bufferNewList = orderBySiteList(fileContent, listSite);
     bufferNewList.reverse();
     setListDiv(bufferNewList);
   };
@@ -124,6 +236,9 @@ const FileViewer = () => {
 
   return (
     <div>
+      <img src={logo} alt='logo_e_emotum' className={'App-logo ' + (rotation ? 'App-logo-rotation' : '')} style={{
+        margin: "20px", backgroundColor: "white", borderRadius: "50%"
+      }}/>
       <input type="file" onChange={handleFileChange} />
 
       <table className="header_table" style={styles.header_table}>
@@ -132,6 +247,11 @@ const FileViewer = () => {
             site
             <button className="btn" style={styles.btn} onClick={orderBySite}>˄</button>
             <button className="btn" style={styles.btn} onClick={orderBySiteRevert}>˅</button>
+            <Popup trigger={<button> choisir site</button>} arrow={false} position="bottom">
+              <div className='popup' style={styles.popup}>
+                {listSiteBtn}
+              </div>
+            </Popup>
           </td>
           <td width="16%">
             date
@@ -171,6 +291,18 @@ const styles = {
     margin: "1rem",
     backgroundColor: "#a1a1a1",
     textAlign: "center"
+  },
+  popup: {
+    backgroundColor: "#00000070",
+    height: "50vh",
+    width: "25vw",
+    padding: "1rem",
+    overflowY: "scroll"
+  },
+  check_list: {
+    backgroundColor: "white",
+    padding: "0.5rem",
+    margin: "0.25rem"
   }
 }
 export default FileViewer;
